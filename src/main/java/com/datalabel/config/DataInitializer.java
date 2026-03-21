@@ -124,6 +124,17 @@ public class DataInitializer implements CommandLineRunner {
         menu6.setStatus(1);
         cache.put(menu6.getId(), menu6);
         
+        Menu menu7 = new Menu();
+        menu7.setId(cache.generateId());
+        menu7.setName("应用管理");
+        menu7.setCode("app_manage");
+        menu7.setPath("/system/application");
+        menu7.setParentId(menu1.getId());
+        menu7.setSort(6);
+        menu7.setMenuType(1);
+        menu7.setStatus(1);
+        cache.put(menu7.getId(), menu7);
+        
         String[] userApiCodes = {"user:list", "user:view", "user:save", "user:update", "user:delete", "user:bindRole"};
         for (String code : userApiCodes) {
             ApiPermission api = new ApiPermission();
@@ -185,6 +196,18 @@ public class DataInitializer implements CommandLineRunner {
             cache.put(api.getId(), api);
         }
         
+        String[] appApiCodes = {"app:list", "app:view", "app:save", "app:update", "app:delete"};
+        for (String code : appApiCodes) {
+            ApiPermission api = new ApiPermission();
+            api.setId(cache.generateId());
+            api.setName("应用" + code.split(":")[1]);
+            api.setCode(code);
+            api.setUrl("/api/application/**");
+            api.setMethod("ALL");
+            api.setMenuId(menu7.getId());
+            cache.put(api.getId(), api);
+        }
+        
         RoleMenu rm1 = new RoleMenu();
         rm1.setId(cache.generateId());
         rm1.setRoleId(role1.getId());
@@ -220,6 +243,12 @@ public class DataInitializer implements CommandLineRunner {
         rm6.setRoleId(role1.getId());
         rm6.setMenuId(menu6.getId());
         cache.put(rm6.getId(), rm6);
+        
+        RoleMenu rm7 = new RoleMenu();
+        rm7.setId(cache.generateId());
+        rm7.setRoleId(role1.getId());
+        rm7.setMenuId(menu7.getId());
+        cache.put(rm7.getId(), rm7);
         
         RoleOrganization ro1 = new RoleOrganization();
         ro1.setId(cache.generateId());
