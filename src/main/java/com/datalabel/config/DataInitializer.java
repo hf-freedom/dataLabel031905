@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class DataInitializer implements CommandLineRunner {
     
@@ -185,6 +187,72 @@ public class DataInitializer implements CommandLineRunner {
             cache.put(api.getId(), api);
         }
         
+        Menu menu7 = new Menu();
+        menu7.setId(cache.generateId());
+        menu7.setName("应用管理");
+        menu7.setCode("app_manage");
+        menu7.setPath("/system/app");
+        menu7.setParentId(menu1.getId());
+        menu7.setSort(6);
+        menu7.setMenuType(1);
+        menu7.setStatus(1);
+        cache.put(menu7.getId(), menu7);
+        
+        String[] appApiCodes = {"app:list", "app:view", "app:save", "app:update", "app:delete"};
+        for (String code : appApiCodes) {
+            ApiPermission api = new ApiPermission();
+            api.setId(cache.generateId());
+            api.setName("应用" + code.split(":")[1]);
+            api.setCode(code);
+            api.setUrl("/api/app/**");
+            api.setMethod("ALL");
+            api.setMenuId(menu7.getId());
+            cache.put(api.getId(), api);
+        }
+        
+        Application app1 = new Application();
+        app1.setId(cache.generateId());
+        app1.setAppId("APP001");
+        app1.setAppName("数据标注系统");
+        app1.setOrganizationId(org2.getId());
+        app1.setAppType(0);
+        app1.setDescription("用于数据标注的应用系统");
+        app1.setStatus(1);
+        app1.setDeleted(0);
+        cache.put(app1.getId(), app1);
+        
+        Application app2 = new Application();
+        app2.setId(cache.generateId());
+        app2.setAppId("APP002");
+        app2.setAppName("数据质检系统");
+        app2.setOrganizationId(org2.getId());
+        app2.setAppType(1);
+        app2.setDescription("用于数据质量检查的应用系统");
+        app2.setStatus(1);
+        app2.setDeleted(0);
+        cache.put(app2.getId(), app2);
+        
+        Application app3 = new Application();
+        app3.setId(cache.generateId());
+        app3.setAppId("APP003");
+        app3.setAppName("市场分析系统");
+        app3.setOrganizationId(org3.getId());
+        app3.setAppType(0);
+        app3.setDescription("用于市场数据分析的应用系统");
+        app3.setStatus(1);
+        app3.setDeleted(0);
+        cache.put(app3.getId(), app3);
+        
+        User testUser = new User();
+        testUser.setId(cache.generateId());
+        testUser.setUsername("testuser");
+        testUser.setPassword("123456");
+        testUser.setRealName("测试用户");
+        testUser.setUserType(0);
+        testUser.setOrganizationId(org2.getId());
+        testUser.setRoleId(role2.getId());
+        cache.put(testUser.getId(), testUser);
+        
         RoleMenu rm1 = new RoleMenu();
         rm1.setId(cache.generateId());
         rm1.setRoleId(role1.getId());
@@ -221,6 +289,18 @@ public class DataInitializer implements CommandLineRunner {
         rm6.setMenuId(menu6.getId());
         cache.put(rm6.getId(), rm6);
         
+        RoleMenu rm7 = new RoleMenu();
+        rm7.setId(cache.generateId());
+        rm7.setRoleId(role1.getId());
+        rm7.setMenuId(menu7.getId());
+        cache.put(rm7.getId(), rm7);
+        
+        RoleMenu rm8 = new RoleMenu();
+        rm8.setId(cache.generateId());
+        rm8.setRoleId(role2.getId());
+        rm8.setMenuId(menu7.getId());
+        cache.put(rm8.getId(), rm8);
+        
         RoleOrganization ro1 = new RoleOrganization();
         ro1.setId(cache.generateId());
         ro1.setRoleId(role1.getId());
@@ -245,7 +325,28 @@ public class DataInitializer implements CommandLineRunner {
         ro4.setOrganizationId(org2.getId());
         cache.put(ro4.getId(), ro4);
         
+        List<ApiPermission> allApis = cache.getAll(ApiPermission.class);
+        for (ApiPermission api : allApis) {
+            RoleApi ra = new RoleApi();
+            ra.setId(cache.generateId());
+            ra.setRoleId(role1.getId());
+            ra.setApiId(api.getId());
+            cache.put(ra.getId(), ra);
+        }
+        
+        for (ApiPermission api : allApis) {
+            if (api.getCode().startsWith("app:") || api.getCode().startsWith("user:")) {
+                RoleApi ra = new RoleApi();
+                ra.setId(cache.generateId());
+                ra.setRoleId(role2.getId());
+                ra.setApiId(api.getId());
+                cache.put(ra.getId(), ra);
+            }
+        }
+        
         System.out.println("初始化数据完成，管理员账号: " + adminConfig.getUsername());
         System.out.println("已初始化菜单、API权限、角色菜单绑定、角色组织机构绑定");
+        System.out.println("已初始化应用数据：APP001(技术部)、APP002(技术部)、APP003(市场部)");
+        System.out.println("已初始化测试用户：testuser/123456，绑定技术部组织机构");
     }
 }
