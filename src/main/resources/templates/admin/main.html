@@ -23,7 +23,6 @@
             padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
-            text-decoration: none;
         }
         .container { display: flex; min-height: calc(100vh - 60px); }
         .sidebar {
@@ -67,7 +66,6 @@
         .btn-primary { background: #667eea; color: white; }
         .btn-danger { background: #e74c3c; color: white; }
         .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
         .btn-sm { padding: 5px 10px; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
@@ -82,18 +80,16 @@
             background: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            z-index: 1000;
         }
         .modal.show { display: flex; }
         .modal-content {
             background: white;
             padding: 25px;
             border-radius: 8px;
-            width: 500px;
+            width: 450px;
             max-height: 80vh;
             overflow-y: auto;
         }
-        .modal-content.wide { width: 650px; }
         .modal-content h3 { margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; color: #555; }
@@ -105,34 +101,6 @@
         }
         .modal-actions { margin-top: 20px; text-align: right; }
         .modal-actions .btn { margin-left: 10px; }
-        .checkbox-group {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-        }
-        .checkbox-item {
-            padding: 8px 5px;
-            border-bottom: 1px solid #eee;
-        }
-        .checkbox-item:last-child { border-bottom: none; }
-        .checkbox-item input { margin-right: 8px; }
-        .checkbox-item label { cursor: pointer; }
-        .status-tag {
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-        }
-        .status-enabled { background: #d4edda; color: #155724; }
-        .status-disabled { background: #f8d7da; color: #721c24; }
-        .menu-type-tag {
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-        }
-        .menu-type-menu { background: #cce5ff; color: #004085; }
-        .menu-type-button { background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
@@ -149,8 +117,6 @@
                 <li class="active" data-page="user">用户管理</li>
                 <li data-page="role">角色管理</li>
                 <li data-page="org">组织机构</li>
-                <li data-page="menu">菜单管理</li>
-                <li data-page="api">API权限</li>
             </ul>
         </div>
         <div class="main-content">
@@ -219,51 +185,6 @@
                     </table>
                 </div>
             </div>
-            <div id="menuPage" class="page">
-                <div class="card">
-                    <h3>菜单管理</h3>
-                    <div class="toolbar">
-                        <button class="btn btn-primary" onclick="showMenuModal()">新增菜单</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>菜单名称</th>
-                                <th>菜单编码</th>
-                                <th>路径</th>
-                                <th>类型</th>
-                                <th>排序</th>
-                                <th>状态</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="menuTable"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="apiPage" class="page">
-                <div class="card">
-                    <h3>API权限管理</h3>
-                    <div class="toolbar">
-                        <button class="btn btn-primary" onclick="showApiModal()">新增API权限</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>权限名称</th>
-                                <th>权限编码</th>
-                                <th>URL</th>
-                                <th>请求方法</th>
-                                <th>所属菜单</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="apiTable"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -307,7 +228,7 @@
                 <select id="userOrg"></select>
             </div>
             <div class="modal-actions">
-                <button class="btn" onclick="closeModal('userModal')">取消</button>
+                <button class="btn" onclick="closeUserModal()">取消</button>
                 <button class="btn btn-primary" onclick="saveUser()">保存</button>
             </div>
         </div>
@@ -330,34 +251,8 @@
                 <textarea id="roleDesc" rows="3"></textarea>
             </div>
             <div class="modal-actions">
-                <button class="btn" onclick="closeModal('roleModal')">取消</button>
+                <button class="btn" onclick="closeRoleModal()">取消</button>
                 <button class="btn btn-primary" onclick="saveRole()">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="roleBindModal" class="modal">
-        <div class="modal-content wide">
-            <h3 id="roleBindModalTitle">角色权限绑定</h3>
-            <input type="hidden" id="roleBindId">
-            <div class="form-group">
-                <label id="roleBindName"></label>
-            </div>
-            <div class="form-group">
-                <label>绑定菜单</label>
-                <div class="checkbox-group" id="menuCheckboxGroup"></div>
-            </div>
-            <div class="form-group">
-                <label>绑定API权限</label>
-                <div class="checkbox-group" id="apiCheckboxGroup"></div>
-            </div>
-            <div class="form-group">
-                <label>绑定组织机构</label>
-                <div class="checkbox-group" id="orgCheckboxGroup"></div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" onclick="closeModal('roleBindModal')">取消</button>
-                <button class="btn btn-primary" onclick="saveRoleBind()">保存</button>
             </div>
         </div>
     </div>
@@ -383,97 +278,8 @@
                 <textarea id="orgDesc" rows="3"></textarea>
             </div>
             <div class="modal-actions">
-                <button class="btn" onclick="closeModal('orgModal')">取消</button>
+                <button class="btn" onclick="closeOrgModal()">取消</button>
                 <button class="btn btn-primary" onclick="saveOrg()">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="menuModal" class="modal">
-        <div class="modal-content">
-            <h3 id="menuModalTitle">新增菜单</h3>
-            <input type="hidden" id="menuId">
-            <div class="form-group">
-                <label>菜单名称</label>
-                <input type="text" id="menuName">
-            </div>
-            <div class="form-group">
-                <label>菜单编码</label>
-                <input type="text" id="menuCode">
-            </div>
-            <div class="form-group">
-                <label>路径</label>
-                <input type="text" id="menuPath">
-            </div>
-            <div class="form-group">
-                <label>上级菜单</label>
-                <select id="menuParent"></select>
-            </div>
-            <div class="form-group">
-                <label>菜单类型</label>
-                <select id="menuType">
-                    <option value="0">菜单</option>
-                    <option value="1">按钮</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>图标</label>
-                <input type="text" id="menuIcon">
-            </div>
-            <div class="form-group">
-                <label>排序</label>
-                <input type="number" id="menuSort" value="0">
-            </div>
-            <div class="form-group">
-                <label>状态</label>
-                <select id="menuStatus">
-                    <option value="1">启用</option>
-                    <option value="0">禁用</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" onclick="closeModal('menuModal')">取消</button>
-                <button class="btn btn-primary" onclick="saveMenu()">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="apiModal" class="modal">
-        <div class="modal-content">
-            <h3 id="apiModalTitle">新增API权限</h3>
-            <input type="hidden" id="apiId">
-            <div class="form-group">
-                <label>权限名称</label>
-                <input type="text" id="apiName">
-            </div>
-            <div class="form-group">
-                <label>权限编码</label>
-                <input type="text" id="apiCode">
-            </div>
-            <div class="form-group">
-                <label>URL</label>
-                <input type="text" id="apiUrl">
-            </div>
-            <div class="form-group">
-                <label>请求方法</label>
-                <select id="apiMethod">
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="DELETE">DELETE</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>所属菜单</label>
-                <select id="apiMenuId"></select>
-            </div>
-            <div class="form-group">
-                <label>描述</label>
-                <textarea id="apiDesc" rows="3"></textarea>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" onclick="closeModal('apiModal')">取消</button>
-                <button class="btn btn-primary" onclick="saveApi()">保存</button>
             </div>
         </div>
     </div>
@@ -481,8 +287,6 @@
     <script>
         var roles = [];
         var orgs = [];
-        var menus = [];
-        var apis = [];
 
         document.querySelectorAll('.sidebar li').forEach(function(li) {
             li.addEventListener('click', function() {
@@ -494,14 +298,8 @@
                 if (page === 'user') loadUsers();
                 else if (page === 'role') loadRoles();
                 else if (page === 'org') loadOrgs();
-                else if (page === 'menu') loadMenus();
-                else if (page === 'api') loadApis();
             });
         });
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
-        }
 
         function loadUsers() {
             Promise.all([
@@ -538,7 +336,7 @@
 
         function loadRoles() {
             fetch('/api/role/list').then(r => r.json()).then(function(result) {
-                roles = result.data || [];
+                var roles = result.data || [];
                 var tbody = document.getElementById('roleTable');
                 tbody.innerHTML = '';
                 roles.forEach(function(role) {
@@ -549,7 +347,6 @@
                         '<td>' + (role.description || '') + '</td>' +
                         '<td>' +
                             '<button class="btn btn-sm btn-primary" onclick="editRole(' + role.id + ')">编辑</button> ' +
-                            '<button class="btn btn-sm btn-warning" onclick="showRoleBindModal(' + role.id + ', \'' + role.name + '\')">绑定权限</button> ' +
                             '<button class="btn btn-sm btn-danger" onclick="deleteRole(' + role.id + ')">删除</button>' +
                         '</td></tr>';
                 });
@@ -558,7 +355,7 @@
 
         function loadOrgs() {
             fetch('/api/org/list').then(r => r.json()).then(function(result) {
-                orgs = result.data || [];
+                var orgs = result.data || [];
                 var tbody = document.getElementById('orgTable');
                 tbody.innerHTML = '';
                 orgs.forEach(function(org) {
@@ -571,59 +368,6 @@
                         '<td>' +
                             '<button class="btn btn-sm btn-primary" onclick="editOrg(' + org.id + ')">编辑</button> ' +
                             '<button class="btn btn-sm btn-danger" onclick="deleteOrg(' + org.id + ')">删除</button>' +
-                        '</td></tr>';
-                });
-            });
-        }
-
-        function loadMenus() {
-            fetch('/api/menu/list').then(r => r.json()).then(function(result) {
-                menus = result.data || [];
-                var tbody = document.getElementById('menuTable');
-                tbody.innerHTML = '';
-                menus.forEach(function(menu) {
-                    var typeClass = menu.menuType === 0 ? 'menu-type-menu' : 'menu-type-button';
-                    var typeText = menu.menuType === 0 ? '菜单' : '按钮';
-                    var statusClass = menu.status === 1 ? 'status-enabled' : 'status-disabled';
-                    var statusText = menu.status === 1 ? '启用' : '禁用';
-                    tbody.innerHTML += '<tr>' +
-                        '<td>' + menu.id + '</td>' +
-                        '<td>' + menu.name + '</td>' +
-                        '<td>' + menu.code + '</td>' +
-                        '<td>' + (menu.path || '') + '</td>' +
-                        '<td><span class="menu-type-tag ' + typeClass + '">' + typeText + '</span></td>' +
-                        '<td>' + (menu.sort || 0) + '</td>' +
-                        '<td><span class="status-tag ' + statusClass + '">' + statusText + '</span></td>' +
-                        '<td>' +
-                            '<button class="btn btn-sm btn-primary" onclick="editMenu(' + menu.id + ')">编辑</button> ' +
-                            '<button class="btn btn-sm btn-danger" onclick="deleteMenu(' + menu.id + ')">删除</button>' +
-                        '</td></tr>';
-                });
-            });
-        }
-
-        function loadApis() {
-            Promise.all([
-                fetch('/api/permission/list').then(r => r.json()),
-                fetch('/api/menu/list').then(r => r.json())
-            ]).then(function(results) {
-                apis = results[0].data || [];
-                menus = results[1].data || [];
-                var tbody = document.getElementById('apiTable');
-                tbody.innerHTML = '';
-                apis.forEach(function(api) {
-                    var menuName = '';
-                    menus.forEach(function(m) { if (m.id === api.menuId) menuName = m.name; });
-                    tbody.innerHTML += '<tr>' +
-                        '<td>' + api.id + '</td>' +
-                        '<td>' + api.name + '</td>' +
-                        '<td>' + api.code + '</td>' +
-                        '<td>' + api.url + '</td>' +
-                        '<td>' + api.method + '</td>' +
-                        '<td>' + menuName + '</td>' +
-                        '<td>' +
-                            '<button class="btn btn-sm btn-primary" onclick="editApi(' + api.id + ')">编辑</button> ' +
-                            '<button class="btn btn-sm btn-danger" onclick="deleteApi(' + api.id + ')">删除</button>' +
                         '</td></tr>';
                 });
             });
@@ -662,6 +406,8 @@
             document.getElementById('userModal').classList.add('show');
         }
 
+        function closeUserModal() { document.getElementById('userModal').classList.remove('show'); }
+
         function saveUser() {
             var id = document.getElementById('userId').value;
             var data = {
@@ -683,7 +429,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             }).then(r => r.json()).then(function(result) {
-                if (result.code === 200) { closeModal('userModal'); loadUsers(); }
+                if (result.code === 200) { closeUserModal(); loadUsers(); }
                 else alert(result.message);
             });
         }
@@ -716,6 +462,8 @@
             document.getElementById('roleModal').classList.add('show');
         }
 
+        function closeRoleModal() { document.getElementById('roleModal').classList.remove('show'); }
+
         function saveRole() {
             var id = document.getElementById('roleId').value;
             var data = {
@@ -729,7 +477,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             }).then(r => r.json()).then(function(result) {
-                if (result.code === 200) { closeModal('roleModal'); loadRoles(); }
+                if (result.code === 200) { closeRoleModal(); loadRoles(); }
                 else alert(result.message);
             });
         }
@@ -737,105 +485,12 @@
         function editRole(id) { showRoleModal(id); }
 
         function deleteRole(id) {
-            if (confirm('确定删除该角色？相关绑定关系也会被删除。')) {
+            if (confirm('确定删除该角色？')) {
                 fetch('/api/role/' + id, {method: 'DELETE'}).then(r => r.json()).then(function(result) {
                     if (result.code === 200) loadRoles();
                     else alert(result.message);
                 });
             }
-        }
-
-        function showRoleBindModal(roleId, roleName) {
-            document.getElementById('roleBindId').value = roleId;
-            document.getElementById('roleBindName').textContent = '角色: ' + roleName;
-            document.getElementById('roleBindModalTitle').textContent = '角色权限绑定 - ' + roleName;
-            
-            Promise.all([
-                fetch('/api/menu/list').then(r => r.json()),
-                fetch('/api/permission/list').then(r => r.json()),
-                fetch('/api/org/list').then(r => r.json()),
-                fetch('/api/role/' + roleId + '/menus').then(r => r.json()),
-                fetch('/api/role/' + roleId + '/apis').then(r => r.json()),
-                fetch('/api/role/' + roleId + '/organizations').then(r => r.json())
-            ]).then(function(results) {
-                var allMenus = results[0].data || [];
-                var allApis = results[1].data || [];
-                var allOrgs = results[2].data || [];
-                var roleMenus = results[3].data || [];
-                var roleApis = results[4].data || [];
-                var roleOrgs = results[5].data || [];
-                
-                var menuGroup = document.getElementById('menuCheckboxGroup');
-                menuGroup.innerHTML = '';
-                allMenus.forEach(function(m) {
-                    var checked = roleMenus.indexOf(m.id) >= 0 ? 'checked' : '';
-                    menuGroup.innerHTML += '<div class="checkbox-item"><input type="checkbox" id="menu_' + m.id + '" value="' + m.id + '" ' + checked + '><label for="menu_' + m.id + '">' + m.name + ' (' + m.code + ')</label></div>';
-                });
-                
-                var apiGroup = document.getElementById('apiCheckboxGroup');
-                apiGroup.innerHTML = '';
-                allApis.forEach(function(a) {
-                    var checked = roleApis.indexOf(a.id) >= 0 ? 'checked' : '';
-                    apiGroup.innerHTML += '<div class="checkbox-item"><input type="checkbox" id="api_' + a.id + '" value="' + a.id + '" ' + checked + '><label for="api_' + a.id + '">' + a.name + ' (' + a.code + ')</label></div>';
-                });
-                
-                var orgGroup = document.getElementById('orgCheckboxGroup');
-                orgGroup.innerHTML = '';
-                allOrgs.forEach(function(o) {
-                    var checked = roleOrgs.indexOf(o.id) >= 0 ? 'checked' : '';
-                    orgGroup.innerHTML += '<div class="checkbox-item"><input type="checkbox" id="org_' + o.id + '" value="' + o.id + '" ' + checked + '><label for="org_' + o.id + '">' + o.name + ' (' + o.code + ')</label></div>';
-                });
-                
-                document.getElementById('roleBindModal').classList.add('show');
-            });
-        }
-
-        function saveRoleBind() {
-            var roleId = document.getElementById('roleBindId').value;
-            
-            var menuIds = [];
-            document.querySelectorAll('#menuCheckboxGroup input:checked').forEach(function(cb) {
-                menuIds.push(parseInt(cb.value));
-            });
-            
-            var apiIds = [];
-            document.querySelectorAll('#apiCheckboxGroup input:checked').forEach(function(cb) {
-                apiIds.push(parseInt(cb.value));
-            });
-            
-            var orgIds = [];
-            document.querySelectorAll('#orgCheckboxGroup input:checked').forEach(function(cb) {
-                orgIds.push(parseInt(cb.value));
-            });
-            
-            Promise.all([
-                fetch('/api/role/' + roleId + '/menus', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(menuIds)
-                }).then(r => r.json()),
-                fetch('/api/role/' + roleId + '/apis', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(apiIds)
-                }).then(r => r.json()),
-                fetch('/api/role/' + roleId + '/organizations', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(orgIds)
-                }).then(r => r.json())
-            ]).then(function(results) {
-                var success = true;
-                results.forEach(function(r) {
-                    if (r.code !== 200) success = false;
-                });
-                if (success) {
-                    closeModal('roleBindModal');
-                    alert('绑定成功');
-                } else {
-                    alert('部分绑定失败');
-                }
-            });
         }
 
         function showOrgModal(id) {
@@ -846,27 +501,29 @@
             document.getElementById('orgDesc').value = '';
             
             fetch('/api/org/list').then(r => r.json()).then(function(result) {
-                var allOrgs = result.data || [];
+                var orgs = result.data || [];
                 var select = document.getElementById('orgParent');
                 select.innerHTML = '<option value="0">顶级机构</option>';
-                allOrgs.forEach(function(o) {
+                orgs.forEach(function(o) {
                     if (!id || o.id !== parseInt(id)) {
                         select.innerHTML += '<option value="' + o.id + '">' + o.name + '</option>';
                     }
                 });
-                
-                if (id) {
-                    fetch('/api/org/' + id).then(r => r.json()).then(function(result) {
-                        var org = result.data;
-                        document.getElementById('orgName').value = org.name;
-                        document.getElementById('orgCode').value = org.code;
-                        document.getElementById('orgParent').value = org.parentId || 0;
-                        document.getElementById('orgDesc').value = org.description || '';
-                    });
-                }
             });
+            
+            if (id) {
+                fetch('/api/org/' + id).then(r => r.json()).then(function(result) {
+                    var org = result.data;
+                    document.getElementById('orgName').value = org.name;
+                    document.getElementById('orgCode').value = org.code;
+                    document.getElementById('orgParent').value = org.parentId || 0;
+                    document.getElementById('orgDesc').value = org.description || '';
+                });
+            }
             document.getElementById('orgModal').classList.add('show');
         }
+
+        function closeOrgModal() { document.getElementById('orgModal').classList.remove('show'); }
 
         function saveOrg() {
             var id = document.getElementById('orgId').value;
@@ -884,7 +541,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             }).then(r => r.json()).then(function(result) {
-                if (result.code === 200) { closeModal('orgModal'); loadOrgs(); }
+                if (result.code === 200) { closeOrgModal(); loadOrgs(); }
                 else alert(result.message);
             });
         }
@@ -895,142 +552,6 @@
             if (confirm('确定删除该机构？')) {
                 fetch('/api/org/' + id, {method: 'DELETE'}).then(r => r.json()).then(function(result) {
                     if (result.code === 200) loadOrgs();
-                    else alert(result.message);
-                });
-            }
-        }
-
-        function showMenuModal(id) {
-            document.getElementById('menuModalTitle').textContent = id ? '编辑菜单' : '新增菜单';
-            document.getElementById('menuId').value = id || '';
-            document.getElementById('menuName').value = '';
-            document.getElementById('menuCode').value = '';
-            document.getElementById('menuPath').value = '';
-            document.getElementById('menuIcon').value = '';
-            document.getElementById('menuSort').value = '0';
-            document.getElementById('menuType').value = '0';
-            document.getElementById('menuStatus').value = '1';
-            
-            fetch('/api/menu/list').then(r => r.json()).then(function(result) {
-                var allMenus = result.data || [];
-                var select = document.getElementById('menuParent');
-                select.innerHTML = '<option value="0">顶级菜单</option>';
-                allMenus.forEach(function(m) {
-                    if (!id || m.id !== parseInt(id)) {
-                        select.innerHTML += '<option value="' + m.id + '">' + m.name + '</option>';
-                    }
-                });
-                
-                if (id) {
-                    fetch('/api/menu/' + id).then(r => r.json()).then(function(result) {
-                        var menu = result.data;
-                        document.getElementById('menuName').value = menu.name;
-                        document.getElementById('menuCode').value = menu.code;
-                        document.getElementById('menuPath').value = menu.path || '';
-                        document.getElementById('menuParent').value = menu.parentId || 0;
-                        document.getElementById('menuType').value = menu.menuType;
-                        document.getElementById('menuIcon').value = menu.icon || '';
-                        document.getElementById('menuSort').value = menu.sort || 0;
-                        document.getElementById('menuStatus').value = menu.status;
-                    });
-                }
-            });
-            document.getElementById('menuModal').classList.add('show');
-        }
-
-        function saveMenu() {
-            var id = document.getElementById('menuId').value;
-            var data = {
-                name: document.getElementById('menuName').value,
-                code: document.getElementById('menuCode').value,
-                path: document.getElementById('menuPath').value,
-                parentId: parseInt(document.getElementById('menuParent').value) || 0,
-                menuType: parseInt(document.getElementById('menuType').value),
-                icon: document.getElementById('menuIcon').value,
-                sort: parseInt(document.getElementById('menuSort').value) || 0,
-                status: parseInt(document.getElementById('menuStatus').value)
-            };
-            if (id) data.id = parseInt(id);
-            fetch('/api/menu/save', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            }).then(r => r.json()).then(function(result) {
-                if (result.code === 200) { closeModal('menuModal'); loadMenus(); }
-                else alert(result.message);
-            });
-        }
-
-        function editMenu(id) { showMenuModal(id); }
-
-        function deleteMenu(id) {
-            if (confirm('确定删除该菜单？')) {
-                fetch('/api/menu/' + id, {method: 'DELETE'}).then(r => r.json()).then(function(result) {
-                    if (result.code === 200) loadMenus();
-                    else alert(result.message);
-                });
-            }
-        }
-
-        function showApiModal(id) {
-            document.getElementById('apiModalTitle').textContent = id ? '编辑API权限' : '新增API权限';
-            document.getElementById('apiId').value = id || '';
-            document.getElementById('apiName').value = '';
-            document.getElementById('apiCode').value = '';
-            document.getElementById('apiUrl').value = '';
-            document.getElementById('apiMethod').value = 'GET';
-            document.getElementById('apiDesc').value = '';
-            
-            fetch('/api/menu/list').then(r => r.json()).then(function(result) {
-                var allMenus = result.data || [];
-                var select = document.getElementById('apiMenuId');
-                select.innerHTML = '<option value="">请选择菜单</option>';
-                allMenus.forEach(function(m) {
-                    select.innerHTML += '<option value="' + m.id + '">' + m.name + '</option>';
-                });
-                
-                if (id) {
-                    fetch('/api/permission/' + id).then(r => r.json()).then(function(result) {
-                        var api = result.data;
-                        document.getElementById('apiName').value = api.name;
-                        document.getElementById('apiCode').value = api.code;
-                        document.getElementById('apiUrl').value = api.url;
-                        document.getElementById('apiMethod').value = api.method;
-                        document.getElementById('apiMenuId').value = api.menuId || '';
-                        document.getElementById('apiDesc').value = api.description || '';
-                    });
-                }
-            });
-            document.getElementById('apiModal').classList.add('show');
-        }
-
-        function saveApi() {
-            var id = document.getElementById('apiId').value;
-            var data = {
-                name: document.getElementById('apiName').value,
-                code: document.getElementById('apiCode').value,
-                url: document.getElementById('apiUrl').value,
-                method: document.getElementById('apiMethod').value,
-                menuId: document.getElementById('apiMenuId').value ? parseInt(document.getElementById('apiMenuId').value) : null,
-                description: document.getElementById('apiDesc').value
-            };
-            if (id) data.id = parseInt(id);
-            fetch('/api/permission/save', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            }).then(r => r.json()).then(function(result) {
-                if (result.code === 200) { closeModal('apiModal'); loadApis(); }
-                else alert(result.message);
-            });
-        }
-
-        function editApi(id) { showApiModal(id); }
-
-        function deleteApi(id) {
-            if (confirm('确定删除该API权限？')) {
-                fetch('/api/permission/' + id, {method: 'DELETE'}).then(r => r.json()).then(function(result) {
-                    if (result.code === 200) loadApis();
                     else alert(result.message);
                 });
             }
