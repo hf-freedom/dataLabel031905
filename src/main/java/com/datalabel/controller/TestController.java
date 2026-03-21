@@ -31,6 +31,18 @@ public class TestController {
     @Autowired
     private RoleService roleService;
     
+    @Autowired
+    private DataPermissionService dataPermissionService;
+    
+    @Autowired
+    private ApplicationService applicationService;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private OrganizationService organizationService;
+    
     @GetMapping("/menus")
     public Result<List<Menu>> getAllMenus() {
         return Result.success(menuService.findAll());
@@ -79,5 +91,94 @@ public class TestController {
             }
         }
         return Result.success(menuService.buildMenuTree(menus));
+    }
+    
+    @GetMapping("/data-permission/info")
+    public Result<DataPermissionInfo> getDataPermissionInfo(HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return Result.error(401, "未登录");
+        }
+        
+        DataPermissionInfo info = new DataPermissionInfo();
+        info.setUserId(currentUser.getId());
+        info.setUsername(currentUser.getUsername());
+        info.setUserType(currentUser.getUserType());
+        info.setIsAdmin(dataPermissionService.isAdmin(currentUser));
+        
+        List<Long> accessibleOrgIds = dataPermissionService.getAccessibleOrgIds(currentUser);
+        info.setAccessibleOrgIds(accessibleOrgIds);
+        
+        if (accessibleOrgIds != null && !accessibleOrgIds.isEmpty()) {
+            List<Organization> orgs = organizationService.findAll();
+            List<String> orgNames = orgs.stream()
+                    .filter(o -> accessibleOrgIds.contains(o.getId()))
+                    .map(Organization::getName)
+                    .collect(java.util.stream.Collectors.toList());
+            info.setAccessibleOrgNames(orgNames);
+        }
+        
+        return Result.success(info);
+    }
+    
+    @GetMapping("/data-permission/apps")
+    public Result<List<Application>> getAccessibleApps(HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return Result.error(401, "未登录");
+        }
+        return Result.success(applicationService.findAccessibleApplications(currentUser));
+    }
+    
+    @GetMapping("/data-permission/users")
+    public Result<List<User>> getAccessibleUsers(HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return Result.error(401, "未登录");
+        }
+        return Result.success(userService.findAccessibleUsers(currentUser));
+    }
+    
+    @PostMapping("/data-permission/create-test-app")
+    public Result<Application> createTestApp(@RequestParam Long orgId, HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return Result.error(401, "未登录");
+        }
+        
+        Application app = new Application();
+        app.setAppName("测试应用_" + System.currentTimeMillis());
+        app.setOrganizationId(orgId);
+        app.setAppType(0);
+        app.setDescription("测试应用描述");
+        app.setStatus(1);
+        app.setDeleted(0);
+        
+        if (applicationService.save(app, currentUser)) {
+            return Result.success("创建成功", app);
+        }
+        return Result.error("创建失败，可能没有权限操作该组织机构");
+    }
+    
+    public static class DataPermissionInfo {
+        private Long userId;
+        private String username;
+        private Integer userType;
+        private Boolean isAdmin;
+        private List<Long> accessibleOrgIds;
+        private List<String> accessibleOrgNames;
+        
+        public Long getUserId() { return userId; }
+        public void setUserId(Long userId) { this.userId = userId; }
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+        public Integer getUserType() { return userType; }
+        public void setUserType(Integer userType) { this.userType = userType; }
+        public Boolean getIsAdmin() { return isAdmin; }
+        public void setIsAdmin(Boolean isAdmin) { this.isAdmin = isAdmin; }
+        public List<Long> getAccessibleOrgIds() { return accessibleOrgIds; }
+        public void setAccessibleOrgIds(List<Long> accessibleOrgIds) { this.accessibleOrgIds = accessibleOrgIds; }
+        public List<String> getAccessibleOrgNames() { return accessibleOrgNames; }
+        public void setAccessibleOrgNames(List<String> accessibleOrgNames) { this.accessibleOrgNames = accessibleOrgNames; }
     }
 }
